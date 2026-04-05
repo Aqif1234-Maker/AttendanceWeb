@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-1">Teacher Dashboard</h2>
+    <p class="text-muted mb-0">Overview for today.</p>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card sa-card">
+      <div class="card-body">
+        <p class="text-muted mb-1">Total Students</p>
+        <h3>{{ total_students }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card sa-card">
+      <div class="card-body">
+        <p class="text-muted mb-1">Today Present</p>
+        <h3 class="text-success">{{ today_present }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card sa-card">
+      <div class="card-body">
+        <p class="text-muted mb-1">Today Absent</p>
+        <h3 class="text-danger">{{ today_absent }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card sa-card">
+      <div class="card-body">
+        <p class="text-muted mb-1">Attendance %</p>
+        <h3 class="text-info">{{ attendance_percent }}%</h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card sa-card mb-4">
+  <div class="card-body">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
+      <div>
+        <h4 class="mb-1">Section Snapshot</h4>
+        <p class="text-muted mb-0">Filter by class & section for live stats.</p>
+      </div>
+      <div class="d-flex gap-2 mt-3 mt-lg-0">
+        <select id="sectionClass" class="form-select">
+          <option value="">All Classes</option>
+          {% for cls in class_options %}
+            <option value="{{ cls }}">{{ cls }}</option>
+          {% endfor %}
+        </select>
+        <select id="sectionSection" class="form-select">
+          <option value="">All Sections</option>
+          {% for sec in section_options %}
+            <option value="{{ sec }}">{{ sec }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="row g-3 mt-3" id="sectionStats">
+      <div class="col-md-3">
+        <div class="card bg-dark border-0">
+          <div class="card-body">
+            <p class="text-muted mb-1">Total</p>
+            <h4 id="sectionTotal">0</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-dark border-0">
+          <div class="card-body">
+            <p class="text-muted mb-1">Present</p>
+            <h4 id="sectionPresent" class="text-success">0</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-dark border-0">
+          <div class="card-body">
+            <p class="text-muted mb-1">Absent</p>
+            <h4 id="sectionAbsent" class="text-danger">0</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-dark border-0">
+          <div class="card-body">
+            <p class="text-muted mb-1">Attendance %</p>
+            <h4 id="sectionPercent" class="text-info">0%</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card sa-card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">Recent Attendance</h4>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-dark table-hover sa-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Class</th>
+                <th>Section</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recentAttendance">
+              {% for att, student in recent_records %}
+                <tr>
+                  <td>{{ student.name }}</td>
+                  <td>{{ student.class_name }}</td>
+                  <td>{{ student.section }}</td>
+                  <td>{{ att.date.strftime('%Y-%m-%d') }}</td>
+                  <td><span class="status-badge status-{{ att.status|lower }}">{{ att.status }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card sa-card h-100">
+      <div class="card-body">
+        <h4 class="mb-3">Today Summary</h4>
+        <canvas id="dashboardChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function updateSectionStats() {
+    const cls = document.getElementById('sectionClass').value;
+    const sec = document.getElementById('sectionSection').value;
+    const url = `/api/section-stats?class=${encodeURIComponent(cls)}&section=${encodeURIComponent(sec)}`;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('sectionTotal').textContent = data.total;
+        document.getElementById('sectionPresent').textContent = data.present;
+        document.getElementById('sectionAbsent').textContent = data.absent;
+        document.getElementById('sectionPercent').textContent = `${data.percent}%`;
+      });
+
+    fetch(`/api/recent-attendance?class=${encodeURIComponent(cls)}&section=${encodeURIComponent(sec)}`)
+      .then(response => response.json())
+      .then(rows => {
+        const tbody = document.getElementById('recentAttendance');
+        tbody.innerHTML = '';
+        rows.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.name}</td>
+            <td>${row.class}</td>
+            <td>${row.section}</td>
+            <td>${row.date}</td>
+            <td><span class="status-badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+  }
+
+  document.getElementById('sectionClass').addEventListener('change', updateSectionStats);
+  document.getElementById('sectionSection').addEventListener('change', updateSectionStats);
+
+  fetch('/api/chart-data')
+    .then(response => response.json())
+    .then(data => renderBarChart('dashboardChart', data, 'Today'));
+
+  updateSectionStats();
+</script>
+{% endblock %}

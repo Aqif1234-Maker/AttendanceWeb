@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card sa-card">
+  <div class="card-body">
+    <h3 class="mb-3">Attendance Reports</h3>
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label">Student Name</label>
+        <input type="text" class="form-control" id="filterName">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Class</label>
+        <input type="text" class="form-control" id="filterClass">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Date From</label>
+        <input type="date" class="form-control" id="filterFrom">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Date To</label>
+        <input type="date" class="form-control" id="filterTo">
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-info w-100" id="generateReport">Generate</button>
+        <button class="btn btn-outline-success w-100" id="exportReport">Export Excel</button>
+      </div>
+    </div>
+
+    <div class="table-responsive mt-4">
+      <table class="table table-dark table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Roll No</th>
+            <th>Class</th>
+            <th>Section</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="reportTable"></tbody>
+      </table>
+    </div>
+
+    <div class="mt-4">
+      <canvas id="reportChart" height="160"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function buildQuery() {
+    const params = new URLSearchParams({
+      name: document.getElementById('filterName').value.trim(),
+      class: document.getElementById('filterClass').value.trim(),
+      date_from: document.getElementById('filterFrom').value,
+      date_to: document.getElementById('filterTo').value
+    });
+    return params.toString();
+  }
+
+  function loadReport() {
+    fetch(`/api/report-data?${buildQuery()}`)
+      .then(response => response.json())
+      .then(rows => {
+        const tbody = document.getElementById('reportTable');
+        tbody.innerHTML = '';
+        rows.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.name}</td>
+            <td>${row.roll_number}</td>
+            <td>${row.class}</td>
+            <td>${row.section}</td>
+            <td>${row.date}</td>
+            <td><span class="status-badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+    fetch(`/api/report-chart?${buildQuery()}`)
+      .then(response => response.json())
+      .then(data => {
+        renderBarChart('reportChart', data, 'Report');
+      });
+  }
+
+  document.getElementById('generateReport').addEventListener('click', loadReport);
+  document.getElementById('exportReport').addEventListener('click', () => {
+    window.location.href = `/teacher/reports/export?${buildQuery()}`;
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card sa-card">
+  <div class="card-body">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
+      <div>
+        <h3 class="mb-1">Mark Attendance</h3>
+        <p class="text-muted mb-0">Select class, section, and date.</p>
+      </div>
+      <div class="d-flex gap-2 mt-3 mt-lg-0">
+        <select class="form-select" id="classSelect">
+          {% for cls in class_options %}
+            <option value="{{ cls }}">Class {{ cls }}</option>
+          {% endfor %}
+        </select>
+        <select class="form-select" id="sectionSelect">
+          {% for sec in section_options %}
+            <option value="{{ sec }}">Section {{ sec }}</option>
+          {% endfor %}
+        </select>
+        <input type="date" class="form-control" id="attendanceDate">
+        <button class="btn btn-info" id="loadStudents">Load Students</button>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+      <button class="btn btn-outline-success btn-sm" id="selectAllPresent">Select All Present</button>
+      <button class="btn btn-outline-danger btn-sm" id="selectAllAbsent">Select All Absent</button>
+    </div>
+
+    <div id="attendanceList" class="mb-4"></div>
+
+    <button class="btn btn-success" id="saveAttendance">Submit Attendance</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/attendance.js') }}"></script>
+<script>
+  const dateInput = document.getElementById('attendanceDate');
+  if (dateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+  }
+</script>
+{% endblock %}
