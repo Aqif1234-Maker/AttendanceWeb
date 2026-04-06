@@ -47,9 +47,17 @@
   <div class="col-lg-8">
     <div class="card sa-card">
       <div class="card-body">
-        <div class="d-flex flex-column flex-lg-row justify-content-between mb-3">
-          <h4 class="mb-2 mb-lg-0">Student List</h4>
-          <input type="text" class="form-control w-50" id="studentSearch" placeholder="Search...">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-3 gap-2">
+          <h4 class="mb-0">Student List</h4>
+          <div class="d-flex gap-2">
+            <select class="form-select" id="sectionFilter">
+              <option value="">All Sections</option>
+              {% for sec in section_options %}
+                <option value="{{ sec }}">{{ sec }}</option>
+              {% endfor %}
+            </select>
+            <input type="text" class="form-control" id="studentSearch" placeholder="Search...">
+          </div>
         </div>
         <div class="table-responsive">
           <table class="table table-dark table-hover sa-table" id="studentsTable">
@@ -129,12 +137,18 @@
     document.getElementById('studentContact').value = row.dataset.contact;
   });
 
-  document.getElementById('studentSearch').addEventListener('input', (event) => {
-    const value = event.target.value.toLowerCase();
+  function applyFilters() {
+    const searchValue = document.getElementById('studentSearch').value.toLowerCase();
+    const sectionValue = document.getElementById('sectionFilter').value;
     table.querySelectorAll('tbody tr').forEach((row) => {
-      row.style.display = row.textContent.toLowerCase().includes(value) ? '' : 'none';
+      const matchesSearch = row.textContent.toLowerCase().includes(searchValue);
+      const matchesSection = sectionValue ? row.dataset.section === sectionValue : true;
+      row.style.display = matchesSearch && matchesSection ? '' : 'none';
     });
-  });
+  }
+
+  document.getElementById('studentSearch').addEventListener('input', applyFilters);
+  document.getElementById('sectionFilter').addEventListener('change', applyFilters);
 
   const deleteModal = document.getElementById('deleteModal');
   deleteModal.addEventListener('show.bs.modal', (event) => {

@@ -79,6 +79,14 @@ def students():
             if not student:
                 flash('Student not found.', 'danger')
                 return redirect(url_for('teacher.students'))
+            existing = Student.query.filter_by(
+                roll_number=roll_number,
+                class_name=class_name,
+                section=section
+            ).first()
+            if existing and existing.id != student.id:
+                flash('Roll number already exists in this class/section.', 'danger')
+                return redirect(url_for('teacher.students'))
             student.name = name
             student.roll_number = roll_number
             student.class_name = class_name
@@ -87,8 +95,12 @@ def students():
             db.session.commit()
             flash('Student updated successfully.', 'success')
         else:
-            if Student.query.filter_by(roll_number=roll_number).first():
-                flash('Roll number already exists.', 'danger')
+            if Student.query.filter_by(
+                roll_number=roll_number,
+                class_name=class_name,
+                section=section
+            ).first():
+                flash('Roll number already exists in this class/section.', 'danger')
                 return redirect(url_for('teacher.students'))
             student = Student(
                 name=name,
@@ -216,7 +228,11 @@ def approve_account(account_id):
     account = StudentAccount.query.get_or_404(account_id)
     account.approved = True
 
-    matching_student = Student.query.filter_by(roll_number=account.roll_number).first()
+    matching_student = Student.query.filter_by(
+        roll_number=account.roll_number,
+        class_name=account.class_name,
+        section=account.section
+    ).first()
     if matching_student:
         account.student_id = matching_student.id
     else:

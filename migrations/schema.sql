@@ -9,24 +9,26 @@ CREATE TABLE teachers (
 CREATE TABLE students (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     name        VARCHAR(100) NOT NULL,
-    roll_number VARCHAR(50)  NOT NULL UNIQUE,
+    roll_number VARCHAR(50)  NOT NULL,
     class       VARCHAR(20)  NOT NULL,
     section     VARCHAR(10)  NOT NULL,
     contact     VARCHAR(20),
-    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_student_roll (roll_number, class, section)
 );
 
 CREATE TABLE student_accounts (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     student_id  INT,
     name        VARCHAR(100) NOT NULL,
-    roll_number VARCHAR(50)  NOT NULL UNIQUE,
+    roll_number VARCHAR(50)  NOT NULL,
     class       VARCHAR(20)  NOT NULL,
     section     VARCHAR(10)  NOT NULL,
     contact     VARCHAR(20),
     password    VARCHAR(255) NOT NULL,
     approved    TINYINT(1)   DEFAULT 0,
     created_at  DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_student_account_roll (roll_number, class, section),
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL
 );
 

@@ -85,8 +85,12 @@ def student_signup():
         if password != confirm_password:
             flash('Passwords do not match.', 'danger')
             return redirect(url_for('auth.student_signup'))
-        if StudentAccount.query.filter_by(roll_number=roll_number).first():
-            flash('Roll number already registered.', 'danger')
+        if StudentAccount.query.filter_by(
+            roll_number=roll_number,
+            class_name=class_name,
+            section=section
+        ).first():
+            flash('Roll number already registered for this class/section.', 'danger')
             return redirect(url_for('auth.student_signup'))
 
         account = StudentAccount(

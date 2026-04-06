@@ -49,7 +49,11 @@ def api_students():
         ).all()
         if accounts:
             for account in accounts:
-                existing = Student.query.filter_by(roll_number=account.roll_number).first()
+                existing = Student.query.filter_by(
+                    roll_number=account.roll_number,
+                    class_name=account.class_name,
+                    section=account.section
+                ).first()
                 if not existing:
                     new_student = Student(
                         name=account.name,

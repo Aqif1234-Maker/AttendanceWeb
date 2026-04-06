@@ -9,13 +9,17 @@ class Student(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    roll_number = db.Column(db.String(50), unique=True, nullable=False)
+    roll_number = db.Column(db.String(50), nullable=False)
     class_name = db.Column('class', db.String(20), nullable=False)
     section = db.Column(db.String(10), nullable=False)
     contact = db.Column(db.String(20))
     created_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
 
     attendance = db.relationship('Attendance', backref='student', lazy=True, cascade='all, delete-orphan')
+
+    __table_args__ = (
+        db.UniqueConstraint('roll_number', 'class', 'section', name='unique_student_roll'),
+    )
 
 
 class StudentAccount(UserMixin, db.Model):
@@ -24,7 +28,7 @@ class StudentAccount(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=True)
     name = db.Column(db.String(100), nullable=False)
-    roll_number = db.Column(db.String(50), unique=True, nullable=False)
+    roll_number = db.Column(db.String(50), nullable=False)
     class_name = db.Column('class', db.String(20), nullable=False)
     section = db.Column(db.String(10), nullable=False)
     contact = db.Column(db.String(20))
@@ -33,6 +37,10 @@ class StudentAccount(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
 
     student = db.relationship('Student', backref='account', lazy=True)
+
+    __table_args__ = (
+        db.UniqueConstraint('roll_number', 'class', 'section', name='unique_student_account_roll'),
+    )
 
     def set_password(self, password):
         self.password = generate_password_hash(password)

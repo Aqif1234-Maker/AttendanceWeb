@@ -17,7 +17,11 @@ def dashboard():
     if account.student_id:
         student = Student.query.get(account.student_id)
     if not student:
-        student = Student.query.filter_by(roll_number=account.roll_number).first()
+        student = Student.query.filter_by(
+            roll_number=account.roll_number,
+            class_name=account.class_name,
+            section=account.section
+        ).first()
         if student and not account.student_id:
             account.student_id = student.id
             from .. import db
