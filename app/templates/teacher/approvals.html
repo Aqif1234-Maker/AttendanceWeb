@@ -2,48 +2,37 @@
 {% set page_title = 'Approvals' %}
 
 {% block content %}
-<div class="card sa-card">
-  <div class="card-body">
-    <h3 class="mb-3">Pending Student Approvals</h3>
-    <div class="table-responsive">
-      <table class="table table-dark table-hover">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Roll No</th>
-            <th>Class</th>
-            <th>Section</th>
-            <th>Contact</th>
-            <th>Registered At</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for account in pending_accounts %}
-            <tr>
-              <td>{{ account.name }}</td>
-              <td>{{ account.roll_number }}</td>
-              <td>{{ account.class_name }}</td>
-              <td>{{ account.section }}</td>
-              <td>{{ account.contact or '-' }}</td>
-              <td>{{ account.created_at.strftime('%Y-%m-%d') }}</td>
-              <td class="d-flex gap-2">
-                <form method="post" action="{{ url_for('teacher.approve_account', account_id=account.id) }}">
-                  <button class="btn btn-sm btn-success">Approve</button>
-                </form>
-                <form method="post" action="{{ url_for('teacher.reject_account', account_id=account.id) }}">
-                  <button class="btn btn-sm btn-danger">Reject</button>
-                </form>
-              </td>
-            </tr>
-          {% else %}
-            <tr>
-              <td colspan="7" class="text-center text-muted">No pending approvals.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<div class="row g-3">
+  {% for account in pending_accounts %}
+    <div class="col-lg-4">
+      <div class="card sa-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h5 class="mb-1">{{ account.name }}</h5>
+              <div class="text-muted small">Roll No: {{ account.roll_number }}</div>
+            </div>
+            <span class="badge text-bg-warning">Pending</span>
+          </div>
+          <div class="text-muted small mb-2">Class: <strong>{{ account.class_name }}</strong> | Section: <strong>{{ account.section }}</strong></div>
+          <div class="text-muted small mb-3">Contact: {{ account.contact or '-' }}</div>
+          <div class="d-flex gap-2">
+            <form method="post" action="{{ url_for('teacher.approve_account', account_id=account.id) }}">
+              <button class="btn btn-success w-100">Approve</button>
+            </form>
+            <form method="post" action="{{ url_for('teacher.reject_account', account_id=account.id) }}">
+              <button class="btn btn-danger w-100">Reject</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  {% else %}
+    <div class="col-12">
+      <div class="card sa-card">
+        <div class="card-body text-center text-muted">No pending approvals.</div>
+      </div>
+    </div>
+  {% endfor %}
 </div>
 {% endblock %}

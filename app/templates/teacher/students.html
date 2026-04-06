@@ -86,9 +86,12 @@
                   <td>{{ student.class_name }}</td>
                   <td>{{ student.section }}</td>
                   <td>{{ student.contact or '-' }}</td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ student.id }}">
-                      Delete
+                  <td class="d-flex gap-2">
+                    <button class="btn btn-outline-info btn-sm" type="button" title="Edit">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ student.id }}" title="Delete">
+                      <i class="bi bi-trash"></i>
                     </button>
                   </td>
                 </tr>
@@ -123,7 +126,6 @@
 {% block scripts %}
 <script>
   const table = document.getElementById('studentsTable');
-  const form = document.getElementById('studentForm');
 
   table.addEventListener('click', (event) => {
     const row = event.target.closest('tr');

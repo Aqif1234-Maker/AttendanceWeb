@@ -2,7 +2,7 @@
 {% set page_title = 'Student Dashboard' %}
 
 {% block content %}
-<div class="card sa-card mb-4">
+<div class="card sa-card mb-4" style="background: linear-gradient(135deg, rgba(79,142,247,0.25), rgba(167,139,250,0.2));">
   <div class="card-body">
     <h3>Welcome, {{ account.name }}</h3>
     <p class="text-muted mb-0">Here is your attendance overview.</p>
@@ -13,71 +13,67 @@
   <div class="col-md-4">
     <div class="card sa-card">
       <div class="card-body">
-        <p class="text-muted mb-1">Roll Number</p>
-        <h4>{{ account.roll_number }}</h4>
+        <div class="stat-label">Roll Number</div>
+        <div class="stat-value">{{ account.roll_number }}</div>
       </div>
     </div>
   </div>
   <div class="col-md-4">
     <div class="card sa-card">
       <div class="card-body">
-        <p class="text-muted mb-1">Class</p>
-        <h4>{{ account.class_name }}</h4>
+        <div class="stat-label">Class</div>
+        <div class="stat-value">{{ account.class_name }}</div>
       </div>
     </div>
   </div>
   <div class="col-md-4">
     <div class="card sa-card">
       <div class="card-body">
-        <p class="text-muted mb-1">Section</p>
-        <h4>{{ account.section }}</h4>
+        <div class="stat-label">Section</div>
+        <div class="stat-value">{{ account.section }}</div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="card sa-card mb-4">
-  <div class="card-body">
-    <div class="row g-3">
-      <div class="col-md-3">
-        <div class="card bg-dark border-0">
-          <div class="card-body">
-            <p class="text-muted mb-1">Total Days</p>
-            <h4>{{ total_days }}</h4>
-          </div>
-        </div>
+<div class="row g-3 mb-4">
+  <div class="col-md-2">
+    <div class="card sa-card border-gradient-blue">
+      <div class="card-body">
+        <div class="stat-label">Total Days</div>
+        <div class="stat-value">{{ total_days }}</div>
       </div>
-      <div class="col-md-2">
-        <div class="card bg-dark border-0">
-          <div class="card-body">
-            <p class="text-muted mb-1">Present</p>
-            <h4 class="text-success">{{ present }}</h4>
-          </div>
-        </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card sa-card border-gradient-green">
+      <div class="card-body">
+        <div class="stat-label">Present</div>
+        <div class="stat-value">{{ present }}</div>
       </div>
-      <div class="col-md-2">
-        <div class="card bg-dark border-0">
-          <div class="card-body">
-            <p class="text-muted mb-1">Absent</p>
-            <h4 class="text-danger">{{ absent }}</h4>
-          </div>
-        </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card sa-card border-gradient-red">
+      <div class="card-body">
+        <div class="stat-label">Absent</div>
+        <div class="stat-value">{{ absent }}</div>
       </div>
-      <div class="col-md-2">
-        <div class="card bg-dark border-0">
-          <div class="card-body">
-            <p class="text-muted mb-1">Late</p>
-            <h4 class="text-warning">{{ late }}</h4>
-          </div>
-        </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card sa-card border-gradient-purple">
+      <div class="card-body">
+        <div class="stat-label">Late</div>
+        <div class="stat-value">{{ late }}</div>
       </div>
-      <div class="col-md-3">
-        <div class="card bg-dark border-0">
-          <div class="card-body">
-            <p class="text-muted mb-1">Attendance %</p>
-            <h4 class="text-info">{{ percent }}%</h4>
-          </div>
-        </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card sa-card">
+      <div class="card-body">
+        <div class="stat-label">Attendance %</div>
+        <div class="stat-value">{{ percent }}%</div>
       </div>
     </div>
   </div>

@@ -4,7 +4,7 @@
 {% block content %}
 <div class="card sa-card">
   <div class="card-body">
-    <h3 class="mb-3">Attendance Reports</h3>
+    <h4 class="mb-3">Attendance Reports</h4>
     <div class="row g-2 align-items-end">
       <div class="col-md-3">
         <label class="form-label">Student Name</label>
@@ -53,6 +53,8 @@
 
 {% block scripts %}
 <script>
+  let reportChartInstance = null;
+
   function buildQuery() {
     const params = new URLSearchParams({
       name: document.getElementById('filterName').value.trim(),
@@ -61,6 +63,45 @@
       date_to: document.getElementById('filterTo').value
     });
     return params.toString();
+  }
+
+  function renderReportChart(data) {
+    const ctx = document.getElementById('reportChart');
+    if (!ctx) return;
+    if (reportChartInstance) {
+      reportChartInstance.destroy();
+    }
+    const styles = getComputedStyle(document.body);
+    const textSecondary = styles.getPropertyValue('--text-secondary').trim() || '#8899b4';
+    const gridColor = styles.getPropertyValue('--border').trim() || 'rgba(255,255,255,0.06)';
+    const blue = styles.getPropertyValue('--accent-blue').trim() || '#4f8ef7';
+    const purple = styles.getPropertyValue('--accent-purple').trim() || '#a78bfa';
+    const red = styles.getPropertyValue('--accent-red').trim() || '#ff4d6a';
+    const yellow = styles.getPropertyValue('--accent-yellow').trim() || '#ffb830';
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 180);
+    gradient.addColorStop(0, blue);
+    gradient.addColorStop(1, purple);
+
+    reportChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Present', 'Absent', 'Late'],
+        datasets: [{
+          data: [data.present, data.absent, data.late],
+          backgroundColor: [gradient, red, yellow],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { ticks: { color: textSecondary }, grid: { display: false } },
+          y: { ticks: { color: textSecondary }, grid: { color: gridColor } }
+        }
+      }
+    });
   }
 
   function loadReport() {
@@ -86,7 +127,7 @@
     fetch(`/api/report-chart?${buildQuery()}`)
       .then(response => response.json())
       .then(data => {
-        renderBarChart('reportChart', data, 'Report');
+        renderReportChart(data);
       });
   }
 

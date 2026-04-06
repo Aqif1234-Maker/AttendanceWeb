@@ -16,6 +16,27 @@
       sidebar.classList.toggle('show');
     });
   }
+
+  const themeToggle = document.getElementById('themeToggle');
+  const savedTheme = localStorage.getItem('sa-theme') || 'dark';
+  document.body.setAttribute('data-theme', savedTheme);
+  const icon = themeToggle?.querySelector('i');
+  if (icon) {
+    icon.className = savedTheme === 'light' ? 'bi bi-sun' : 'bi bi-moon-stars';
+  }
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = document.body.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', next);
+      localStorage.setItem('sa-theme', next);
+      const icon = themeToggle.querySelector('i');
+      if (icon) {
+        icon.className = next === 'light' ? 'bi bi-sun' : 'bi bi-moon-stars';
+      }
+    });
+  }
 })();
 
 function showToast(message, variant = 'success') {

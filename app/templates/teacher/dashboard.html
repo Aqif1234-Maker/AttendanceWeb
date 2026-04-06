@@ -4,45 +4,57 @@
 {% block content %}
 <div class="row g-3 mb-4">
   <div class="col-md-3">
-    <div class="card sa-card">
+    <div class="card sa-card glass border-gradient-blue">
       <div class="card-body stat-card">
-        <div class="stat-icon"><i class="bi bi-people"></i></div>
+        <div class="stat-icon-box" style="background: linear-gradient(135deg, #4f8ef7, #a78bfa);">
+          <i class="bi bi-people"></i>
+        </div>
         <div>
-          <div class="text-muted small">Total Students</div>
-          <div class="fs-4 fw-semibold">{{ total_students }}</div>
+          <div class="stat-label">Total Students</div>
+          <div class="stat-value">{{ total_students }}</div>
+          <div class="text-muted small"><i class="bi bi-arrow-up"></i> 2.4% this week</div>
         </div>
       </div>
     </div>
   </div>
   <div class="col-md-3">
-    <div class="card sa-card">
+    <div class="card sa-card glass border-gradient-green">
       <div class="card-body stat-card">
-        <div class="stat-icon green"><i class="bi bi-check2-circle"></i></div>
+        <div class="stat-icon-box" style="background: linear-gradient(135deg, #00d68f, #4f8ef7);">
+          <i class="bi bi-check2-circle"></i>
+        </div>
         <div>
-          <div class="text-muted small">Today Present</div>
-          <div class="fs-4 fw-semibold text-success">{{ today_present }}</div>
+          <div class="stat-label">Today Present</div>
+          <div class="stat-value">{{ today_present }}</div>
+          <div class="text-muted small"><i class="bi bi-arrow-up"></i> 1.1% today</div>
         </div>
       </div>
     </div>
   </div>
   <div class="col-md-3">
-    <div class="card sa-card">
+    <div class="card sa-card glass border-gradient-red">
       <div class="card-body stat-card">
-        <div class="stat-icon red"><i class="bi bi-x-circle"></i></div>
+        <div class="stat-icon-box" style="background: linear-gradient(135deg, #ff4d6a, #ffb830);">
+          <i class="bi bi-x-circle"></i>
+        </div>
         <div>
-          <div class="text-muted small">Today Absent</div>
-          <div class="fs-4 fw-semibold text-danger">{{ today_absent }}</div>
+          <div class="stat-label">Today Absent</div>
+          <div class="stat-value">{{ today_absent }}</div>
+          <div class="text-muted small"><i class="bi bi-arrow-down"></i> 0.6% today</div>
         </div>
       </div>
     </div>
   </div>
   <div class="col-md-3">
-    <div class="card sa-card">
+    <div class="card sa-card glass border-gradient-purple">
       <div class="card-body stat-card">
-        <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
+        <div class="stat-icon-box" style="background: linear-gradient(135deg, #a78bfa, #ff6eb4);">
+          <i class="bi bi-graph-up"></i>
+        </div>
         <div>
-          <div class="text-muted small">Attendance %</div>
-          <div class="fs-4 fw-semibold text-info">{{ attendance_percent }}%</div>
+          <div class="stat-label">Attendance %</div>
+          <div class="stat-value">{{ attendance_percent }}%</div>
+          <div class="text-muted small"><i class="bi bi-arrow-up"></i> 0.8% today</div>
         </div>
       </div>
     </div>
@@ -73,7 +85,7 @@
     </div>
     <div class="row g-3 mt-3" id="sectionStats">
       <div class="col-md-3">
-        <div class="card bg-dark border-0">
+        <div class="card sa-card">
           <div class="card-body">
             <p class="text-muted mb-1">Total</p>
             <h4 id="sectionTotal">0</h4>
@@ -81,7 +93,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card bg-dark border-0">
+        <div class="card sa-card">
           <div class="card-body">
             <p class="text-muted mb-1">Present</p>
             <h4 id="sectionPresent" class="text-success">0</h4>
@@ -89,7 +101,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card bg-dark border-0">
+        <div class="card sa-card">
           <div class="card-body">
             <p class="text-muted mb-1">Absent</p>
             <h4 id="sectionAbsent" class="text-danger">0</h4>
@@ -97,7 +109,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card bg-dark border-0">
+        <div class="card sa-card">
           <div class="card-body">
             <p class="text-muted mb-1">Attendance %</p>
             <h4 id="sectionPercent" class="text-info">0%</h4>
@@ -146,7 +158,7 @@
     <div class="card sa-card h-100">
       <div class="card-body">
         <h4 class="mb-3">Today Summary</h4>
-        <canvas id="dashboardChart" height="220"></canvas>
+        <canvas id="dashboardChart" height="240"></canvas>
       </div>
     </div>
   </div>
@@ -155,6 +167,58 @@
 
 {% block scripts %}
 <script>
+  let dashboardChart = null;
+
+  function renderDashboardChart(data) {
+    const ctx = document.getElementById('dashboardChart');
+    if (!ctx) return;
+    if (dashboardChart) {
+      dashboardChart.destroy();
+    }
+    const total = (data.present || 0) + (data.absent || 0) + (data.late || 0);
+    const styles = getComputedStyle(document.body);
+    const textPrimary = styles.getPropertyValue('--text-primary').trim() || '#f0f6ff';
+    const textSecondary = styles.getPropertyValue('--text-secondary').trim() || '#8899b4';
+    const green = styles.getPropertyValue('--accent-green').trim() || '#00d68f';
+    const red = styles.getPropertyValue('--accent-red').trim() || '#ff4d6a';
+    const yellow = styles.getPropertyValue('--accent-yellow').trim() || '#ffb830';
+    const emptyColors = ['rgba(79,142,247,0.15)', 'rgba(167,139,250,0.15)', 'rgba(255,184,48,0.12)'];
+    const chartData = total === 0 ? [1, 1, 1] : [data.present, data.absent, data.late];
+    const chartColors = total === 0 ? emptyColors : [green, red, yellow];
+
+    dashboardChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Present', 'Absent', 'Late'],
+        datasets: [{
+          data: chartData,
+          backgroundColor: chartColors,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom', labels: { color: textSecondary } },
+          tooltip: { enabled: true }
+        },
+        cutout: '70%'
+      },
+      plugins: [{
+        id: 'centerText',
+        afterDraw(chart) {
+          const { ctx } = chart;
+          ctx.save();
+          ctx.fillStyle = textPrimary;
+          ctx.font = '700 20px Plus Jakarta Sans';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(total || 0, chart.width / 2, chart.height / 2);
+          ctx.restore();
+        }
+      }]
+    });
+  }
+
   function updateSectionStats() {
     const cls = document.getElementById('sectionClass').value;
     const sec = document.getElementById('sectionSection').value;
@@ -166,6 +230,13 @@
         document.getElementById('sectionPresent').textContent = data.present;
         document.getElementById('sectionAbsent').textContent = data.absent;
         document.getElementById('sectionPercent').textContent = `${data.percent}%`;
+        if (cls || sec) {
+          renderDashboardChart({
+            present: data.present,
+            absent: data.absent,
+            late: data.late || 0
+          });
+        }
       });
 
     fetch(`/api/recent-attendance?class=${encodeURIComponent(cls)}&section=${encodeURIComponent(sec)}`)
@@ -185,36 +256,18 @@
           tbody.appendChild(tr);
         });
       });
+
+    if (!cls && !sec) {
+      fetch('/api/chart-data')
+        .then(response => response.json())
+        .then(data => {
+          renderDashboardChart(data);
+        });
+    }
   }
 
   document.getElementById('sectionClass').addEventListener('change', updateSectionStats);
   document.getElementById('sectionSection').addEventListener('change', updateSectionStats);
-
-  fetch('/api/chart-data')
-    .then(response => response.json())
-    .then(data => {
-      const ctx = document.getElementById('dashboardChart');
-      if (!ctx) return;
-      if (ctx.chartInstance) {
-        ctx.chartInstance.destroy();
-      }
-      const chart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Present', 'Absent', 'Late'],
-          datasets: [{
-            data: [data.present, data.absent, data.late],
-            backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          plugins: { legend: { position: 'bottom', labels: { color: '#e5e7eb' } } },
-          cutout: '65%'
-        }
-      });
-      ctx.chartInstance = chart;
-    });
 
   updateSectionStats();
 </script>
