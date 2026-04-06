@@ -79,6 +79,15 @@ body {
   min-height: 100vh;
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.page-animated-bg .container > .row {
+  width: 100%;
+}
+
+.auth-card {
+  width: 100%;
 }
 
 @keyframes floatGlow {
