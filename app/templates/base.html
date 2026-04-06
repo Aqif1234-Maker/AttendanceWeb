@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title or 'SmartAttendance Web' }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/darkly/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
@@ -15,16 +18,22 @@
         <i class="bi bi-clipboard-data fs-3 text-info"></i>
         <span class="sa-brand fs-5">SmartAttendance</span>
       </div>
-      <div class="mb-4">
-        <span class="badge text-bg-info">{{ current_user.full_name }}</span>
+      <div class="mb-4 d-flex align-items-center gap-2">
+        <span class="avatar">
+          {{ current_user.full_name.split(' ')[0][0] }}{% if current_user.full_name.split(' ')|length > 1 %}{{ current_user.full_name.split(' ')[-1][0] }}{% endif %}
+        </span>
+        <div>
+          <div class="small text-muted">Teacher</div>
+          <div class="fw-semibold">{{ current_user.full_name }}</div>
+        </div>
       </div>
       <nav class="nav flex-column">
-        <a class="nav-link" href="{{ url_for('teacher.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
-        <a class="nav-link" href="{{ url_for('teacher.students') }}"><i class="bi bi-people me-2"></i>Students</a>
-        <a class="nav-link" href="{{ url_for('teacher.attendance') }}"><i class="bi bi-calendar-check me-2"></i>Attendance</a>
-        <a class="nav-link" href="{{ url_for('teacher.reports') }}"><i class="bi bi-bar-chart me-2"></i>Reports</a>
-        <a class="nav-link" href="{{ url_for('teacher.approvals') }}">
-          <i class="bi bi-check2-square me-2"></i>Approvals
+        <a class="nav-link {% if request.path == url_for('teacher.dashboard') %}active{% endif %}" href="{{ url_for('teacher.dashboard') }}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+        <a class="nav-link {% if request.path == url_for('teacher.students') %}active{% endif %}" href="{{ url_for('teacher.students') }}"><i class="bi bi-people"></i>Students</a>
+        <a class="nav-link {% if request.path == url_for('teacher.attendance') %}active{% endif %}" href="{{ url_for('teacher.attendance') }}"><i class="bi bi-calendar-check"></i>Attendance</a>
+        <a class="nav-link {% if request.path == url_for('teacher.reports') %}active{% endif %}" href="{{ url_for('teacher.reports') }}"><i class="bi bi-bar-chart"></i>Reports</a>
+        <a class="nav-link {% if request.path == url_for('teacher.approvals') %}active{% endif %}" href="{{ url_for('teacher.approvals') }}">
+          <i class="bi bi-check2-square"></i>Approvals
           {% if pending_approvals %}
             <span class="badge text-bg-danger ms-2">{{ pending_approvals }}</span>
           {% endif %}
@@ -38,32 +47,37 @@
   {% endif %}
 
   <div class="{% if session.get('user_type') == 'teacher' %}content-with-sidebar{% else %}container py-4{% endif %}">
-    {% if session.get('user_type') == 'student' %}
-      <nav class="navbar navbar-dark bg-dark rounded-3 mb-4">
-        <div class="container-fluid">
-          <span class="navbar-brand">Student Portal</span>
-          <div class="d-flex align-items-center gap-3">
+    {% if session.get('user_type') in ['teacher', 'student'] %}
+      <div class="topbar">
+        <div class="d-flex align-items-center gap-3">
+          {% if session.get('user_type') == 'teacher' %}
+            <button class="btn btn-outline-info d-lg-none" id="sidebarToggle"><i class="bi bi-list"></i></button>
+          {% endif %}
+          <div class="fw-semibold fs-5">{{ page_title or 'Dashboard' }}</div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          {% if session.get('user_type') == 'student' %}
             <span class="badge text-bg-success">{{ current_user.name }}</span>
             <a class="btn btn-outline-success btn-sm" href="{{ url_for('auth.student_logout') }}">Logout</a>
-          </div>
+          {% else %}
+            <span class="badge text-bg-info">{{ current_user.full_name }}</span>
+          {% endif %}
         </div>
-      </nav>
-    {% endif %}
-
-    {% if session.get('user_type') == 'teacher' %}
-      <div class="d-lg-none mb-3">
-        <button class="btn btn-outline-info" id="sidebarToggle"><i class="bi bi-list"></i></button>
       </div>
     {% endif %}
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
+        <div class="toast-container position-fixed top-0 end-0 p-3">
+          {% for category, message in messages %}
+            <div class="toast flash-toast text-bg-{{ category }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000" data-bs-autohide="true">
+              <div class="d-flex">
+                <div class="toast-body">{{ message }}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
       {% endif %}
     {% endwith %}
 
@@ -83,6 +97,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+  <script>
+    document.querySelectorAll('.flash-toast').forEach((toastEl) => {
+      const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+      toast.show();
+    });
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -9,10 +9,10 @@
 
 <div class="row g-4 justify-content-center">
   <div class="col-lg-5">
-    <div class="card sa-card h-100">
+    <div class="card sa-card h-100 landing-card">
       <div class="card-body">
         <h3 class="card-title text-info">Teacher Portal</h3>
-        <p class="card-text">Manage students, mark attendance, and generate reports.</p>
+        <p class="card-text text-muted">Manage students, mark attendance, and generate reports.</p>
         <div class="d-flex gap-2">
           <a href="{{ url_for('auth.teacher_login') }}" class="btn btn-info">Login</a>
           <a href="{{ url_for('auth.teacher_signup') }}" class="btn btn-outline-info">Sign Up</a>
@@ -21,10 +21,10 @@
     </div>
   </div>
   <div class="col-lg-5">
-    <div class="card sa-card h-100">
+    <div class="card sa-card h-100 landing-card student">
       <div class="card-body">
         <h3 class="card-title text-success">Student Portal</h3>
-        <p class="card-text">View attendance, track performance, and stay informed.</p>
+        <p class="card-text text-muted">View attendance, track performance, and stay informed.</p>
         <div class="d-flex gap-2">
           <a href="{{ url_for('auth.student_login') }}" class="btn btn-success">Login</a>
           <a href="{{ url_for('auth.student_signup') }}" class="btn btn-outline-success">Sign Up</a>

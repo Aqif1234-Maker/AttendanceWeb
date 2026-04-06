@@ -1,43 +1,49 @@
 {% extends 'base.html' %}
+{% set page_title = 'Dashboard' %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h2 class="mb-1">Teacher Dashboard</h2>
-    <p class="text-muted mb-0">Overview for today.</p>
-  </div>
-</div>
-
 <div class="row g-3 mb-4">
   <div class="col-md-3">
     <div class="card sa-card">
-      <div class="card-body">
-        <p class="text-muted mb-1">Total Students</p>
-        <h3>{{ total_students }}</h3>
+      <div class="card-body stat-card">
+        <div class="stat-icon"><i class="bi bi-people"></i></div>
+        <div>
+          <div class="text-muted small">Total Students</div>
+          <div class="fs-4 fw-semibold">{{ total_students }}</div>
+        </div>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card sa-card">
-      <div class="card-body">
-        <p class="text-muted mb-1">Today Present</p>
-        <h3 class="text-success">{{ today_present }}</h3>
+      <div class="card-body stat-card">
+        <div class="stat-icon green"><i class="bi bi-check2-circle"></i></div>
+        <div>
+          <div class="text-muted small">Today Present</div>
+          <div class="fs-4 fw-semibold text-success">{{ today_present }}</div>
+        </div>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card sa-card">
-      <div class="card-body">
-        <p class="text-muted mb-1">Today Absent</p>
-        <h3 class="text-danger">{{ today_absent }}</h3>
+      <div class="card-body stat-card">
+        <div class="stat-icon red"><i class="bi bi-x-circle"></i></div>
+        <div>
+          <div class="text-muted small">Today Absent</div>
+          <div class="fs-4 fw-semibold text-danger">{{ today_absent }}</div>
+        </div>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card sa-card">
-      <div class="card-body">
-        <p class="text-muted mb-1">Attendance %</p>
-        <h3 class="text-info">{{ attendance_percent }}%</h3>
+      <div class="card-body stat-card">
+        <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
+        <div>
+          <div class="text-muted small">Attendance %</div>
+          <div class="fs-4 fw-semibold text-info">{{ attendance_percent }}%</div>
+        </div>
       </div>
     </div>
   </div>
@@ -140,7 +146,7 @@
     <div class="card sa-card h-100">
       <div class="card-body">
         <h4 class="mb-3">Today Summary</h4>
-        <canvas id="dashboardChart" height="200"></canvas>
+        <canvas id="dashboardChart" height="220"></canvas>
       </div>
     </div>
   </div>
@@ -186,7 +192,29 @@
 
   fetch('/api/chart-data')
     .then(response => response.json())
-    .then(data => renderBarChart('dashboardChart', data, 'Today'));
+    .then(data => {
+      const ctx = document.getElementById('dashboardChart');
+      if (!ctx) return;
+      if (ctx.chartInstance) {
+        ctx.chartInstance.destroy();
+      }
+      const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Present', 'Absent', 'Late'],
+          datasets: [{
+            data: [data.present, data.absent, data.late],
+            backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          plugins: { legend: { position: 'bottom', labels: { color: '#e5e7eb' } } },
+          cutout: '65%'
+        }
+      });
+      ctx.chartInstance = chart;
+    });
 
   updateSectionStats();
 </script>
